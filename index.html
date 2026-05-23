@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth antialiased dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Joseph BlackWell - Discover Your Next Read">
+    <title>Joseph BlackWell | The Astral Nexus</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#030108',
+                            surface: 'rgba(12, 12, 20, 0.4)',
+                            surfaceHover: 'rgba(20, 20, 30, 0.6)',
+                            purple: '#a855f7',
+                            cyan: '#0ea5e9',
+                            rose: '#f43f5e',
+                            textMain: '#f8fafc',
+                            textMuted: '#94a3b8'
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['Cinzel', 'serif'],
+                        body: ['Outfit', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        premium: '0 20px 40px -10px rgba(0,0,0,0.7), inset 0 1px 0 0 rgba(255,255,255,0.1)',
+                        glowPurple: '0 0 30px rgba(168, 85, 247, 0.3)',
+                        glowCyan: '0 0 30px rgba(14, 165, 233, 0.3)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-up': 'slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'float': 'float 10s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(40px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-15px)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass { @apply bg-brand-surface backdrop-blur-2xl border border-white/5 shadow-premium; }
+            .text-gradient { @apply text-transparent bg-clip-text bg-gradient-to-r from-brand-textMain to-brand-textMuted; }
+            .spotlight-overlay { background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.06), transparent 40%); }
+        }
+
+        /* Base & Scrollbar */
+        body { @apply font-body bg-brand-bg text-brand-textMain min-h-screen flex flex-col overflow-x-hidden selection:bg-brand-purple/40 selection:text-white; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { @apply bg-brand-bg; }
+        ::-webkit-scrollbar-thumb { @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors; }
+
+        /* Background Effects */
+        .stars-container { position: fixed; inset: 0; z-index: -2; pointer-events: none; overflow: hidden; }
+        .bg-stars { background-image: url("data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle%3E .star { fill: white; opacity: 0.7; } .s2 { opacity: 0.4; } .s3 { opacity: 0.15; } %3C/style%3E%3Cg class='star'%3E%3Ccircle cx='150' cy='200' r='1'/%3E%3Ccircle cx='600' cy='100' r='1'/%3E%3Ccircle cx='300' cy='600' r='1.5'/%3E%3Ccircle cx='700' cy='500' r='1'/%3E%3Ccircle cx='50' cy='400' r='1'/%3E%3C/g%3E%3Cg class='star s2'%3E%3Ccircle cx='500' cy='300' r='1'/%3E%3Ccircle cx='100' cy='600' r='0.5'/%3E%3Ccircle cx='450' cy='700' r='1'/%3E%3Ccircle cx='350' cy='450' r='1'/%3E%3C/g%3E%3Cg class='star s3'%3E%3Ccircle cx='50' cy='250' r='1'/%3E%3Ccircle cx='550' cy='650' r='1'/%3E%3C/g%3E%3C/svg%3E"); }
+        .stars { position: absolute; width: 100vw; height: 200vh; animation: starScroll 150s linear infinite; }
+        .stars2 { position: absolute; width: 100vw; height: 200vh; animation: starScroll 100s linear infinite; background-size: 400px 400px; }
+        @keyframes starScroll { from { transform: translateY(0); } to { transform: translateY(-100vh); } }
+
+        /* Dynamic Reveals */
+        .reveal-element { opacity: 0; transform: translateY(30px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); will-change: opacity, transform; }
+        .reveal-element.visible { opacity: 1; transform: translateY(0); }
+
+        /* Premium Reader Typography */
+        #markdown-container { @apply text-brand-textMuted max-w-[65ch] mx-auto; }
+        #markdown-container h1, #markdown-container h2, #markdown-container h3 { @apply font-heading text-brand-textMain font-medium tracking-wide scroll-mt-32; }
+        #markdown-container h1 { @apply text-4xl md:text-5xl border-b border-white/5 pb-6 mb-12 text-center text-gradient; }
+        #markdown-container h2 { @apply text-2xl md:text-3xl text-brand-textMain mt-16 mb-6; }
+        #markdown-container h3 { @apply text-xl text-brand-cyan mt-10 mb-4; }
+        #markdown-container p { @apply mb-8 font-light leading-loose tracking-wide; }
+        #markdown-container img { @apply max-w-full rounded-2xl mx-auto my-12 shadow-2xl border border-white/10; }
+        #markdown-container blockquote { @apply p-8 my-10 text-brand-textMain italic bg-white/[0.02] border-l-2 border-brand-cyan rounded-r-2xl; }
+        #markdown-container ul { @apply list-disc list-inside mb-8 space-y-3 marker:text-brand-purple; }
+
+        /* Toast Notifications */
+        .toast { transform: translateY(100%) scale(0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast.show { transform: translateY(0) scale(1); opacity: 1; }
+    </style>
+</head>
+<body class="relative">
+
+    <div class="fixed top-[-20%] left-[-10%] w-[60vw] h-[60vh] bg-brand-purple/10 rounded-full blur-[150px] pointer-events-none mix-blend-screen animate-pulse-slow z-[-1]"></div>
+    <div class="fixed bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-brand-cyan/10 rounded-full blur-[150px] pointer-events-none mix-blend-screen animate-pulse-slow z-[-1]" style="animation-delay: -2s;"></div>
+    
+    <div class="stars-container">
+        <div class="bg-stars stars"></div>
+        <div class="bg-stars stars2 opacity-60"></div>
+    </div>
+
+    <nav id="main-nav" class="fixed w-full top-0 z-50 transition-all duration-500 py-6 px-6 lg:px-12 flex justify-between items-center border-b border-transparent">
+        <div class="font-heading text-2xl md:text-3xl font-medium tracking-wide text-brand-textMain cursor-pointer hover:text-brand-purple transition-colors duration-300" onclick="app.navigate('home')" role="button" aria-label="Homepage">
+            J. BlackWell
+        </div>
+        
+        <button class="md:hidden text-white/70 hover:text-white transition-colors" onclick="app.toggleMobileMenu()" aria-label="Toggle Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+
+        <div id="mobile-nav-links" class="absolute md:static top-full left-0 w-full md:w-auto bg-brand-bg/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none border-b border-white/5 md:border-none flex-col md:flex-row hidden md:flex items-center gap-2 md:gap-10 py-6 md:py-0 transition-all">
+            <a onclick="app.navigate('home')" class="nav-link cursor-pointer text-sm tracking-[0.2em] uppercase font-light text-brand-textMuted hover:text-brand-textMain transition-all relative group py-2 md:py-0">Home
+                <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-purple rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-glowPurple"></span>
+            </a>
+            <a onclick="app.navigate('books')" class="nav-link cursor-pointer text-sm tracking-[0.2em] uppercase font-light text-brand-textMuted hover:text-brand-textMain transition-all relative group py-2 md:py-0">Books
+                <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-purple rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-glowPurple"></span>
+            </a>
+            <a onclick="app.navigate('blogs')" class="nav-link cursor-pointer text-sm tracking-[0.2em] uppercase font-light text-brand-textMuted hover:text-brand-textMain transition-all relative group py-2 md:py-0">Blogs
+                <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-purple rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-glowPurple"></span>
+            </a>
+            <a onclick="app.navigate('about')" class="nav-link cursor-pointer text-sm tracking-[0.2em] uppercase font-light text-brand-textMuted hover:text-brand-textMain transition-all relative group py-2 md:py-0">About
+                <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-purple rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-glowPurple"></span>
+            </a>
+        </div>
+    </nav>
+
+    <main id="app-container" class="flex-1 flex flex-col pt-24 pb-12" role="main"></main>
+
+    <footer class="mt-auto py-10 text-center text-brand-textMuted text-xs tracking-[0.2em] uppercase border-t border-white/5 relative z-10 animate-fade-in">
+        <p>&copy; 2026 The Astral Library of Joseph BlackWell</p>
+    </footer>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        const DATA = {
+            books: [
+                { id: "bk_1", type: "book", category: ["Sci-Fi", "Space Opera"], status: "featured", title: "The Vagabond's Hearth", description: "A group of outcast space merchants become a family aboard a rundown freighter navigating the outer rim. A tale of belonging in the cold void.", image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&q=80&w=800", date: "2024-03-10", file: "content/Story.md" },
+                { id: "bk_2", type: "book", category: ["Sci-Fi", "Philosophy"], status: "featured", title: "Echoes of Eternity", description: "A sci-fi epic spanning generations, dealing with time relativity, cosmic memory, and the enduring nature of human connection.", image: "https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?auto=format&fit=crop&q=80&w=800", date: "2024-01-20", file: "content/Story.md" },
+                { id: "bk_3", type: "book", category: ["Sci-Fi", "Found Family"], status: "upcoming", title: "Orphans of the Starlight", description: "After their planetary academy falls, five mismatched recruits must rely on each other to survive a galaxy at war.", image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800", date: "2024-12-01", file: "content/upcoming.md" },
+                { id: "bk_4", type: "book", category: ["Thriller", "Mystery"], status: "", title: "Shadows in the Mist", description: "A gripping psychological thriller set in a small coastal town holding a massive, terrifying collective secret.", image: "https://images.unsplash.com/photo-1518991669955-9c7e78ec80ca?auto=format&fit=crop&q=80&w=800", date: "2022-05-10", file: "content/bk_4.md" },
+                { id: "bk_5", type: "book", category: ["Urban Fantasy"], status: "", title: "The Coffee Shop Coven", description: "Four urban witches bond over lattes, complex spellcraft, and navigating their turbulent twenties in a modern city.", image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800", date: "2023-08-15", file: "content/bk_5.md" }
+            ],
+            blogs: [
+                { id: "bg_1", type: "blog", category: ["Writing Tips"], status: "", title: "Why I Write: Found Families", description: "Exploring why the 'Found Family' trope resonates so deeply in modern science fiction and fantasy.", image: "https://images.unsplash.com/photo-1455390582262-044cdead27d8?auto=format&fit=crop&q=80&w=800", date: "2024-03-01", file: "content/bg_1.md" },
+                { id: "bg_2", type: "blog", category: ["Writing Tips", "Worldbuilding"], status: "", title: "Top 10 Worldbuilding Tips", description: "Architectural strategies for making your fictional universes feel visceral, real, and lived-in.", image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800", date: "2024-02-15", file: "content/bg_2.md" }
+            ]
+        };
+
+        const app = {
+            container: document.getElementById('app-container'),
+            heroIndex: 0,
+            heroTimer: null,
+            observer: null,
+            gridState: { searchQuery: '', category: 'All', sortBy: 'DateNew' },
+            
+            init() {
+                // Init Favorites
+                if (!localStorage.getItem('user_favorites')) {
+                    localStorage.setItem('user_favorites', JSON.stringify(['bk_1', 'bg_2']));
+                }
+
+                // Router logic
+                window.addEventListener('popstate', (e) => {
+                    if (e.state) this.navigate(e.state.view, e.state.dataId, e.state.type, false);
+                    else this.navigate('home', null, null, false);
+                });
+                
+                // Navbar scroll effect
+                window.addEventListener('scroll', () => {
+                    const nav = document.getElementById('main-nav');
+                    if (window.scrollY > 20) {
+                        nav.classList.add('glass', 'py-4');
+                        nav.classList.remove('py-6', 'border-transparent');
+                    } else {
+                        nav.classList.remove('glass', 'py-4');
+                        nav.classList.add('py-6', 'border-transparent');
+                    }
+                });
+
+                // Intersection Observer for scroll reveals
+                this.observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            this.observer.unobserve(entry.target); 
+                        }
+                    });
+                }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+                this.navigate('home', null, null, false);
+            },
+
+            // --- UI Utilities ---
+            showToast(message, icon = '✦') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast glass px-6 py-4 rounded-xl flex items-center gap-3 text-sm shadow-2xl border-white/10';
+                toast.innerHTML = `<span class="text-brand-cyan">${icon}</span> <span class="tracking-wide">${message}</span>`;
+                container.appendChild(toast);
+                
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => toast.classList.add('show'));
+                });
+
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 3000);
+            },
+
+            initSpotlightCards() {
+                const cards = document.querySelectorAll('.spotlight-card');
+                cards.forEach(card => {
+                    card.addEventListener('mousemove', e => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        card.style.setProperty('--mouse-x', `${x}px`);
+                        card.style.setProperty('--mouse-y', `${y}px`);
+                    });
+                });
+            },
+
+            toggleMobileMenu() {
+                const navLinks = document.getElementById('mobile-nav-links');
+                navLinks.classList.toggle('hidden');
+                navLinks.classList.toggle('flex');
+            },
+
+            toggleFavorite(itemId) {
+                let favorites = JSON.parse(localStorage.getItem('user_favorites') || '[]');
+                const btn = document.getElementById('fav-btn');
+                
+                if (favorites.includes(itemId)) {
+                    favorites = favorites.filter(id => id !== itemId);
+                    btn.classList.remove('border-brand-purple', 'bg-brand-purple/10', 'text-brand-textMain');
+                    btn.classList.add('border-white/10', 'text-brand-textMuted');
+                    btn.innerHTML = "✧ Save Node";
+                    this.showToast('Node removed from Vault', '✧');
+                } else {
+                    favorites.push(itemId);
+                    btn.classList.remove('border-white/10', 'text-brand-textMuted');
+                    btn.classList.add('border-brand-purple', 'bg-brand-purple/10', 'text-brand-textMain');
+                    btn.innerHTML = "✦ Node Saved";
+                    this.showToast('Node secured in Vault', '✦');
+                }
+                localStorage.setItem('user_favorites', JSON.stringify(favorites));
+            },
+
+            // --- Navigation ---
+            navigate(view, dataId = null, type = null, pushHistory = true) {
+                if (this.heroTimer) clearInterval(this.heroTimer);
+                this.gridState = { searchQuery: '', category: 'All', sortBy: 'DateNew' };
+
+                if (pushHistory) {
+                    const url = dataId ? `?view=${view}&id=${dataId}&type=${type}` : `?view=${view}`;
+                    history.pushState({ view, dataId, type }, '', url);
+                }
+
+                // Smooth out transition
+                this.container.style.opacity = '0';
+                
+                setTimeout(() => {
+                    this.container.innerHTML = ''; 
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    document.getElementById('mobile-nav-links').classList.add('hidden');
+                    document.getElementById('mobile-nav-links').classList.remove('flex');
+
+                    switch(view) {
+                        case 'home': document.title = "Nexus | Joseph BlackWell"; this.renderHome(); break;
+                        case 'books': document.title = "The Vault | Joseph BlackWell"; this.renderGrid('The Astral Vault', DATA.books, 'books'); break;
+                        case 'blogs': document.title = "Transmissions | Joseph BlackWell"; this.renderGrid('Starlight Transmissions', DATA.blogs, 'blogs'); break;
+                        case 'reader': this.renderReader(dataId, type); break;
+                        case 'about': document.title = "Origins | Joseph BlackWell"; this.renderAbout(); break;
+                    }
+                    
+                    this.container.style.opacity = '1';
+                    this.container.classList.add('animate-fade-in');
+                    
+                    setTimeout(() => {
+                        document.querySelectorAll('.reveal-element').forEach(el => this.observer.observe(el));
+                        this.initSpotlightCards();
+                    }, 50);
+                }, 300);
+            },
+
+            // --- Renderers ---
+            renderHome() {
+                const featured = DATA.books.filter(b => b.status === "featured");
+                
+                const heroHtml = `
+                    <section class="relative w-full max-w-[1400px] mx-auto min-h-[70vh] flex items-center px-6 lg:px-12 py-12 animate-slide-up">
+                        <div class="flex flex-col lg:flex-row items-center gap-16 w-full">
+                            <div class="flex-1 text-center lg:text-left z-10 flex flex-col items-center lg:items-start">
+                                <span class="inline-block px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold tracking-[0.2em] uppercase text-brand-textMuted mb-8 backdrop-blur-sm">Featured Manifestation</span>
+                                
+                                <h1 id="hero-title" class="font-heading text-5xl md:text-6xl lg:text-7xl font-normal text-gradient mb-6 leading-[1.1] transition-all duration-700 min-h-[120px] lg:min-h-[160px] flex items-center"></h1>
+                                
+                                <p id="hero-desc" class="text-lg text-brand-textMuted font-light mb-12 max-w-lg leading-relaxed min-h-[100px] transition-all duration-700"></p>
+                                
+                                <div class="flex items-center gap-6">
+                                    <button id="hero-read-btn" class="px-8 py-4 rounded-full bg-brand-textMain text-brand-bg font-medium tracking-[0.1em] uppercase text-sm hover:scale-105 hover:shadow-glowCyan transition-all duration-300">
+                                        Enter World
+                                    </button>
+                                    <div class="flex gap-2">
+                                        <button onclick="app.slideHero(-1, true)" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 hover:border-white/20 transition-all text-brand-textMuted hover:text-white">&larr;</button>
+                                        <button onclick="app.slideHero(1, true)" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 hover:border-white/20 transition-all text-brand-textMuted hover:text-white">&rarr;</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-1 flex justify-center lg:justify-end relative w-full max-w-md lg:max-w-none">
+                                <div id="hero-image" class="w-[300px] h-[450px] lg:w-[400px] lg:h-[600px] bg-cover bg-center rounded-2xl shadow-premium relative overflow-hidden animate-float border border-white/10">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-brand-bg/80 via-transparent to-transparent"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <div class="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-10"></div>
+                    
+                    <section id="home-favs-grid" class="w-full max-w-[1400px] mx-auto px-6 py-12"></section>
+                    <section id="home-books-grid" class="w-full max-w-[1400px] mx-auto px-6 py-12"></section>
+                `;
+                this.container.innerHTML = heroHtml;
+                
+                if(featured.length > 0) {
+                    this.updateHeroContent(featured);
+                    this.heroTimer = setInterval(() => this.slideHero(1, false), 8000); 
+                }
+
+                const favIds = JSON.parse(localStorage.getItem('user_favorites') || '[]');
+                const allItems = [...DATA.books, ...DATA.blogs];
+                const favItems = favIds.map(id => allItems.find(i => i.id === id)).filter(Boolean);
+
+                if (favItems.length > 0) this.renderCardsHTML('Secured Nodes', favItems, document.getElementById('home-favs-grid'));
+                
+                const recentBooks = [...DATA.books].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 4);
+                this.renderCardsHTML('Recent Manifestations', recentBooks, document.getElementById('home-books-grid'));
+            },
+
+            slideHero(direction, userInitiated = false) {
+                const featured = DATA.books.filter(b => b.status === "featured");
+                if(featured.length === 0) return;
+                
+                this.heroIndex = (this.heroIndex + direction + featured.length) % featured.length;
+                this.updateHeroContent(featured);
+
+                if (userInitiated) {
+                    clearInterval(this.heroTimer);
+                    this.heroTimer = setInterval(() => this.slideHero(1, false), 8000);
+                }
+            },
+
+            updateHeroContent(featured) {
+                const item = featured[this.heroIndex];
+                const titleEl = document.getElementById('hero-title');
+                const descEl = document.getElementById('hero-desc');
+                const imageEl = document.getElementById('hero-image');
+                
+                titleEl.classList.add('opacity-0', '-translate-y-4');
+                descEl.classList.add('opacity-0', '-translate-y-4');
+                
+                setTimeout(() => {
+                    titleEl.innerText = item.title;
+                    descEl.innerText = item.description;
+                    imageEl.style.backgroundImage = `url('${item.image}')`;
+                    
+                    titleEl.classList.remove('opacity-0', '-translate-y-4');
+                    descEl.classList.remove('opacity-0', '-translate-y-4');
+                }, 400);
+                
+                document.getElementById('hero-read-btn').onclick = () => this.navigate('reader', item.id, item.type);
+            },
+
+            renderGrid(title, items, collectionType) {
+                const uniqueCategories = ['All', ...new Set(items.flatMap(i => i.category))];
+                
+                const catsHtml = uniqueCategories.map((cat, idx) => 
+                    `<button class="px-5 py-2 rounded-full border text-xs tracking-widest uppercase transition-all duration-300 reveal-element ${this.gridState.category === cat ? 'border-brand-textMain text-brand-bg bg-brand-textMain' : 'border-white/10 text-brand-textMuted hover:border-white/30 hover:text-white'}" style="transition-delay: ${idx * 50}ms;"
+                             onclick="app.updateGridFilter('${cat}', '${collectionType}')">
+                        ${cat}
+                    </button>`
+                ).join('');
+
+                this.container.innerHTML = `
+                    <div class="w-full max-w-[1400px] mx-auto px-6 py-12 animate-slide-up z-10 relative">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-end pb-8 mb-8 border-b border-white/5 gap-6">
+                            <h2 class="font-heading text-4xl lg:text-5xl text-gradient">${title}</h2>
+                            <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                                <input type="search" placeholder="Search parameters..." value="${this.gridState.searchQuery}"
+                                    class="w-full sm:w-64 px-5 py-3 rounded-xl glass text-sm text-brand-textMain placeholder-white/30 outline-none focus:border-white/20 transition-all"
+                                    onkeyup="app.handleSearch(event, '${collectionType}')">
+                                    
+                                <select class="w-full sm:w-48 px-5 py-3 rounded-xl glass text-sm text-brand-textMain outline-none focus:border-white/20 transition-all cursor-pointer appearance-none" 
+                                        onchange="app.handleSort(event, '${collectionType}')">
+                                    <option value="DateNew" class="bg-brand-bg" ${this.gridState.sortBy === 'DateNew' ? 'selected' : ''}>Latest</option>
+                                    <option value="DateOld" class="bg-brand-bg" ${this.gridState.sortBy === 'DateOld' ? 'selected' : ''}>Earliest</option>
+                                    <option value="Category" class="bg-brand-bg" ${this.gridState.sortBy === 'Category' ? 'selected' : ''}>Sector</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-3 mb-16">${catsHtml}</div>
+                        
+                        <div id="grid-cards-container"></div>
+                    </div>
+                `;
+
+                this.updateGridDisplay(collectionType);
+            },
+
+            updateGridFilter(category, collectionType) {
+                this.gridState.category = category;
+                this.renderGrid(collectionType === 'books' ? 'The Astral Vault' : 'Starlight Transmissions', DATA[collectionType], collectionType);
+            },
+
+            handleSearch(event, collectionType) {
+                this.gridState.searchQuery = event.target.value.toLowerCase();
+                this.updateGridDisplay(collectionType);
+            },
+
+            handleSort(event, collectionType) {
+                this.gridState.sortBy = event.target.value;
+                this.updateGridDisplay(collectionType);
+            },
+
+            updateGridDisplay(collectionType) {
+                let items = [...DATA[collectionType]];
+                
+                if (this.gridState.category !== 'All') items = items.filter(i => i.category.includes(this.gridState.category));
+                if (this.gridState.searchQuery) items = items.filter(i => i.title.toLowerCase().includes(this.gridState.searchQuery) || i.description.toLowerCase().includes(this.gridState.searchQuery));
+
+                items.sort((a, b) => {
+                    if (this.gridState.sortBy === 'DateNew') return new Date(b.date) - new Date(a.date);
+                    if (this.gridState.sortBy === 'DateOld') return new Date(a.date) - new Date(b.date);
+                    return a.category[0].localeCompare(b.category[0]);
+                });
+
+                const container = document.getElementById('grid-cards-container');
+                if(items.length === 0) {
+                    container.innerHTML = `<p class="reveal-element text-lg text-brand-textMuted font-light py-10">No signals detected matching these parameters.</p>`;
+                } else {
+                    this.renderCardsHTML('', items, container, false);
+                }
+                
+                setTimeout(() => {
+                    document.querySelectorAll('.reveal-element').forEach(el => this.observer.observe(el));
+                    this.initSpotlightCards();
+                }, 50);
+            },
+
+            renderCardsHTML(title, items, targetElement, includeWrapper = true) {
+                let cardsHtml = items.map((item, index) => {
+                    const isUpcoming = item.status === 'upcoming';
+                    const clickAction = isUpcoming ? '' : `onclick="app.navigate('reader', '${item.id}', '${item.type}')" tabindex="0" role="button"`;
+                    
+                    const ribbon = isUpcoming ? `
+                        <div class="absolute top-4 right-4 z-20">
+                            <span class="px-3 py-1 rounded-full bg-brand-rose/10 border border-brand-rose/20 text-brand-rose text-[10px] font-bold tracking-widest uppercase backdrop-blur-md">Upcoming</span>
+                        </div>` : '';
+
+                    const cats = item.category.slice(0,2).map(c => `<span class="text-[10px] font-medium text-brand-textMuted uppercase tracking-widest border border-white/5 px-2 py-1 rounded-md">${c}</span>`).join('');
+                    
+                    return `
+                        <div class="reveal-element spotlight-card group relative flex flex-col glass rounded-2xl overflow-hidden transition-all duration-500 ${isUpcoming ? 'opacity-70 cursor-default' : 'cursor-pointer hover:-translate-y-2 hover:border-white/20'}" style="transition-delay: ${(index % 4) * 100}ms; --mouse-x: -100px; --mouse-y: -100px;" ${clickAction}>
+                            ${!isUpcoming ? '<div class="spotlight-overlay absolute inset-0 z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>' : ''}
+                            
+                            ${ribbon}
+                            <div class="w-full aspect-[3/4] overflow-hidden relative bg-black border-b border-white/5">
+                                <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover opacity-60 transition-all duration-1000 ease-out ${isUpcoming ? 'filter grayscale blur-sm' : 'group-hover:scale-105 group-hover:opacity-90'}" loading="lazy">
+                                <div class="absolute inset-0 bg-gradient-to-t from-brand-bg to-transparent"></div>
+                            </div>
+                            <div class="p-6 flex flex-col flex-1 absolute bottom-0 w-full z-20 bg-gradient-to-t from-brand-bg via-brand-bg/90 to-transparent pt-12">
+                                <h3 class="font-heading text-xl md:text-2xl text-brand-textMain mb-3 group-hover:text-white transition-colors">${item.title}</h3>
+                                <div class="flex flex-wrap gap-2">${cats}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                const content = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">${cardsHtml}</div>`;
+
+                if (includeWrapper) {
+                    targetElement.innerHTML = `
+                        <div class="flex items-center gap-4 mb-10 reveal-element">
+                            <h2 class="font-heading text-2xl text-brand-textMain">${title}</h2>
+                            <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+                        </div>
+                        ${content}
+                    `;
+                } else {
+                    targetElement.innerHTML = content;
+                }
+            },
+
+            async renderReader(id, type) {
+                const item = (type === 'book' ? DATA.books : DATA.blogs).find(i => i.id === id);
+                if (!item) return;
+
+                document.title = `${item.title} | Joseph BlackWell`;
+                
+                // Loading Skeleton
+                this.container.innerHTML = `
+                    <div class="w-full max-w-4xl mx-auto px-6 py-20 animate-pulse opacity-50">
+                        <div class="h-12 bg-white/5 rounded-md w-3/4 mx-auto mb-16"></div>
+                        <div class="space-y-6">
+                            <div class="h-4 bg-white/5 rounded w-full"></div>
+                            <div class="h-4 bg-white/5 rounded w-full"></div>
+                            <div class="h-4 bg-white/5 rounded w-5/6"></div>
+                        </div>
+                    </div>`;
+
+                try {
+                    const response = await fetch(item.file);
+                    if (!response.ok) throw new Error("Document unavailable.");
+                    const markdownText = await response.text();
+
+                    const wordCount = markdownText.trim().split(/\s+/).length;
+                    const safeHtml = DOMPurify.sanitize(marked.parse(markdownText));
+                    const isFav = JSON.parse(localStorage.getItem('user_favorites') || '[]').includes(item.id);
+
+                    this.container.innerHTML = `
+                        <div class="w-full max-w-[1400px] mx-auto flex flex-col lg:flex-row relative z-10 animate-fade-in">
+                            
+                            <article class="flex-1 order-2 lg:order-1 px-6 lg:px-12 py-10">
+                                <div class="flex flex-wrap justify-between items-center pb-6 mb-10 border-b border-white/5 gap-4">
+                                    <div class="flex gap-4 text-xs tracking-widest uppercase text-brand-textMuted font-light">
+                                        <span>${wordCount} Words</span>
+                                        <span>&bull;</span>
+                                        <span>${Math.ceil(wordCount/200)} Min Read</span>
+                                    </div>
+                                    <button id="fav-btn" onclick="app.toggleFavorite('${item.id}')" class="px-5 py-2 rounded-full border text-xs tracking-widest uppercase transition-all ${isFav ? 'border-brand-purple bg-brand-purple/10 text-brand-textMain' : 'border-white/10 text-brand-textMuted hover:border-white/30 hover:text-brand-textMain'}">
+                                        ${isFav ? '✦ Node Saved' : '✧ Save Node'}
+                                    </button>
+                                </div>
+
+                                <div id="markdown-container" class="prose-container relative pb-32">
+                                    ${safeHtml}
+                                </div>
+                            </article>
+
+                            <aside class="w-full lg:w-80 order-1 lg:order-2 px-6 lg:px-0 py-10 lg:pl-10 lg:border-l border-white/5 relative">
+                                <div class="sticky top-32">
+                                    <div class="mb-10">
+                                        <div class="flex justify-between text-[10px] uppercase tracking-[0.2em] text-brand-textMuted mb-3">
+                                            <span>Reading Progress</span> <span id="progress-pct" class="text-brand-textMain">0%</span>
+                                        </div>
+                                        <div class="h-[2px] bg-white/5 w-full rounded-full overflow-hidden">
+                                            <div id="progress-fill" class="h-full w-0 bg-brand-textMain transition-all duration-300"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h3 class="text-[10px] uppercase tracking-[0.2em] text-brand-textMuted mb-6 pb-2 border-b border-white/5">Directory</h3>
+                                    <ul id="toc-list" class="space-y-3 text-sm"></ul>
+                                </div>
+                            </aside>
+                        </div>
+                    `;
+                    
+                    this.setupReaderFeatures(item.id);
+
+                } catch (error) {
+                    this.container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-[50vh] text-center px-6">
+                            <h3 class="font-heading text-4xl text-brand-textMuted mb-4">Signal Lost</h3>
+                            <p class="text-white/40 text-sm font-light tracking-wide">The manuscript could not be retrieved from the server.</p>
+                            <button onclick="app.navigate('home')" class="mt-8 px-6 py-2 border border-white/10 rounded-full text-xs uppercase tracking-widest hover:bg-white/5 transition-colors">Return Home</button>
+                        </div>`;
+                }
+            },
+
+            setupReaderFeatures(itemId) {
+                const contentDiv = document.getElementById('markdown-container');
+                const tocList = document.getElementById('toc-list');
+                
+                contentDiv.querySelectorAll('h1, h2').forEach((heading, i) => {
+                    heading.id = `heading-${i}`;
+
+                    if (heading.tagName === 'H1' || heading.tagName === 'H2') {
+                        const isMain = heading.tagName === 'H1';
+                        const li = document.createElement('li');
+                        li.className = isMain ? 'font-medium text-brand-textMain' : 'pl-4 text-brand-textMuted font-light';
+                        
+                        li.innerHTML = `<span class="cursor-pointer hover:text-white transition-colors py-1 block w-full text-left line-clamp-1">${heading.innerText}</span>`;
+                        
+                        li.querySelector('span').onclick = () => {
+                            heading.scrollIntoView({ behavior: 'smooth' });
+                        };
+                        
+                        tocList.appendChild(li);
+                    }
+                });
+
+                // Scroll Progress
+                const progressKey = `read_progress_${itemId}`;
+                setTimeout(() => {
+                    const saved = localStorage.getItem(progressKey) || 0;
+                    if(saved > 0) window.scrollTo(0, (document.documentElement.scrollHeight - window.innerHeight) * (saved / 100));
+                }, 100); 
+
+                window.addEventListener('scroll', () => {
+                    if (document.getElementById('progress-pct')) {
+                        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                        const pct = Math.min(100, Math.max(0, height > 0 ? Math.round((winScroll / height) * 100) : 100));
+                        
+                        document.getElementById('progress-pct').innerText = `${pct}%`;
+                        document.getElementById('progress-fill').style.width = `${pct}%`;
+                        localStorage.setItem(progressKey, pct);
+                    }
+                }, { passive: true });
+            },
+
+            renderAbout() {
+                this.container.innerHTML = `
+                    <div class="flex-1 flex items-center justify-center px-6 py-20 relative z-10 animate-fade-in w-full max-w-[1400px] mx-auto">
+                        <section class="max-w-4xl w-full text-center py-20 px-8 lg:px-20 glass rounded-3xl border border-white/5 relative overflow-hidden">
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                            
+                            <h2 class="font-heading text-5xl lg:text-7xl text-gradient mb-8">The Astral Nexus</h2>
+                            <p class="font-body text-sm tracking-[0.3em] uppercase text-brand-textMuted mb-12">Traverse the Infinite Pages</p>
+                            
+                            <p class="text-lg lg:text-xl text-brand-textMain font-light leading-loose max-w-2xl mx-auto">
+                                This platform was meticulously engineered as an interactive, holographic haven for stories, insights, and worldbuilding concepts. 
+                                It serves to connect eager travelers directly to imaginative realms, encasing literature in a celestial framework of light, glass, and dark matter.
+                            </p>
+                            
+                            <div class="mt-16 pt-10 border-t border-white/5 flex justify-center gap-6">
+                                <a href="#" class="text-brand-textMuted hover:text-white transition-colors"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a>
+                                <a href="#" class="text-brand-textMuted hover:text-white transition-colors"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+                                <a href="#" class="text-brand-textMuted hover:text-white transition-colors"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+                            </div>
+                        </section>
+                    </div>
+                `;
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
